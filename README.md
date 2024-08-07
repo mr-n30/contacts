@@ -1,2 +1,2 @@
 # contacts
-A website for storing contact information
+A website for Creating, Reading, Updating, and Deleting contact information
