@@ -1,38 +1,48 @@
 import { useState } from "react";
+import "./App.css";
 
-const ContactForm = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+const ContactForm = ({ existingContact = {}, updateCallback }) => {
+  const [firstName, setFirstName] = useState(existingContact.firstName || "");
+  const [lastName, setLastName] = useState(existingContact.lastName || "");
+  const [email, setEmail] = useState(existingContact.email || "");
 
+  const updating = Object.entries(existingContact).length > 0;
+
+  // Handle <form> and <button> when it's clicked logic
   const onSubmit = async (e) => {
     e.preventDefault();
 
+    // Set options for JS fetch
     const data = {
       firstName,
       lastName,
       email,
     };
 
-    const url = "http://localhost:5000/create_contact";
+    // Handle update or create contact
+    const url =
+      "http://localhost:5000/" +
+      (updating ? `update_contact/${existingContact.id}` : "create_contact");
     const options = {
-      method: "POST",
+      method: updating ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     };
 
+    // Make the create request
     const response = await fetch(url, options);
     if (response.status !== 201 && response.status !== 200) {
       const data = await response.json();
       alert(data.message);
     } else {
       alert("Your contact has been created!");
-      location.reload();
+      updateCallback();
     }
   };
 
+  // Actual contact <form>
   return (
     <form onSubmit={onSubmit}>
       <h2>Create Contact</h2>
@@ -66,7 +76,7 @@ const ContactForm = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
       </label>
-      <button type="submit">Create Contact</button>
+      <button type="submit">{updating ? "Update" : "Create"}</button>
     </form>
   );
 };
