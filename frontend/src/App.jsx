@@ -1,45 +1,38 @@
 import { useState, useEffect } from "react";
-import "./App.css";
 import ContactList from "./ContactList";
 import ContactForm from "./ContactForm";
 
 function App() {
   const [contacts, setContacts] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState({});
+  const [isCreateOrUpdate, setIsCreateOrUpdate] = useState(true); // True means create False means update
 
   useEffect(() => {
     fetchContacts();
   }, []);
 
-  const fetchContacts = async () => {
-    const response = await fetch("http://localhost:5000/contacts");
-    const data = await response.json();
-    setContacts(data.contacts);
-    // console.log(data.contacts);
-  };
+  const fetchContacts = () => {
+    // const response = await fetch("http://localhost:5000/contacts");
+    // const data = await response.json();
+    // setContacts(data.contacts);
 
-  // Handle modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setCurrentContact({});
-  };
+    fetch("http://localhost:5000/contacts")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `[ERROR] Error in "fetchContacts()", Message=>HTTP error! Status: ${response.status}`
+          );
+        }
 
-  const openCreateModal = () => {
-    if (!isModalOpen) setIsModalOpen(true);
-  };
-
-  // Handle contact going into modal
-  const openEditModal = (contact) => {
-    if (isModalOpen) return;
-
-    setCurrentContact(contact);
-    setIsModalOpen(true);
+        return response.json();
+      })
+      .then((data) => {
+        setContacts(data.contacts);
+      });
   };
 
   // Handle modal when it gets updated
   const onUpdate = () => {
-    closeModal();
     fetchContacts();
   };
 
@@ -47,23 +40,49 @@ function App() {
     <>
       <ContactList
         contacts={contacts}
-        updateContact={openEditModal}
+        updateContact={setCurrentContact}
         updateCallback={onUpdate}
+        contactState={setIsCreateOrUpdate}
       />
-      <button onClick={openCreateModal}>Create New Contact</button>
-      {isModalOpen && (
-        <div className="modal">
+      <button
+        type="button"
+        className="btn btn-success create-new-contact-button"
+        data-bs-toggle="modal"
+        data-bs-target="#exampleModal"
+        onClick={() => setCurrentContact({})}
+      >
+        Create New Contact
+      </button>
+      <div
+        className="modal fade"
+        id="exampleModal"
+        tabIndex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
           <div className="modal-content">
-            <button className="close-modal" onClick={closeModal}>
-              &times;
-            </button>
-            <ContactForm
-              updateCallback={onUpdate}
-              existingContact={currentContact}
-            />
+            <div className="modal-header">
+              <h1 className="modal-title fs-5 modal-contact-title" id="exampleModalLabel">
+                {isCreateOrUpdate ? "Create New Contact" : "Update Contact"}
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <ContactForm
+                updateCallback={onUpdate}
+                existingContact={currentContact}
+                contactState={setIsCreateOrUpdate}
+              />
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

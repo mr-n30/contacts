@@ -1,12 +1,31 @@
 import { useState } from "react";
-import "./App.css";
+import PropTypes from "prop-types";
+import { useEffect } from "react";
 
-const ContactForm = ({ existingContact = {}, updateCallback }) => {
+const ContactForm = ({
+  existingContact = {},
+  updateCallback,
+  contactState,
+}) => {
   const [firstName, setFirstName] = useState(existingContact.firstName || "");
   const [lastName, setLastName] = useState(existingContact.lastName || "");
   const [email, setEmail] = useState(existingContact.email || "");
 
   const updating = Object.entries(existingContact).length > 0;
+
+  // Use useEffect to update the state when existingContact changes
+  useEffect(() => {
+    if (updating) {
+      setFirstName(existingContact.firstName || "");
+      setLastName(existingContact.lastName || "");
+      setEmail(existingContact.email || "");
+    } else {
+      // Reset fields when creating a new contact
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+    }
+  }, [existingContact, updating]); // Dependency array
 
   // Handle <form> and <button> when it's clicked logic
   const onSubmit = async (e) => {
@@ -32,22 +51,29 @@ const ContactForm = ({ existingContact = {}, updateCallback }) => {
     };
 
     // Make the create request
-    const response = await fetch(url, options);
-    if (response.status !== 201 && response.status !== 200) {
-      const data = await response.json();
-      alert(data.message);
-    } else {
-      alert("Your contact has been created!");
-      updateCallback();
-    }
+    fetch(url, options)
+      .then((response) => {
+        if (response.status !== 201 && response.status !== 200) {
+          return response.json().then((data) => {
+            alert(data.message);
+          });
+        } else {
+          alert("Your contact has been created!");
+          updateCallback();
+        }
+      })
+      .catch((error) => {
+        // Catch any network or unexpected errors
+        console.error("Error occurred:", error);
+      });
   };
 
   // Actual contact <form>
   return (
-    <form onSubmit={onSubmit}>
-      <h2>Create Contact</h2>
+    <form className="contact-form" onSubmit={onSubmit}>
       <label htmlFor="firstName">
-        First Name
+        <p>First Name</p>
+
         <input
           type="text"
           id="firstName"
@@ -57,7 +83,7 @@ const ContactForm = ({ existingContact = {}, updateCallback }) => {
         />
       </label>
       <label htmlFor="lastName">
-        Last Name
+        <p>Last Name</p>
         <input
           type="text"
           id="lastName"
@@ -67,7 +93,8 @@ const ContactForm = ({ existingContact = {}, updateCallback }) => {
         />
       </label>
       <label htmlFor="email">
-        Email
+        <p>Email</p>
+
         <input
           type="email"
           id="email"
@@ -76,9 +103,29 @@ const ContactForm = ({ existingContact = {}, updateCallback }) => {
           onChange={(e) => setEmail(e.target.value)}
         />
       </label>
-      <button type="submit">{updating ? "Update" : "Create"}</button>
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          data-bs-dismiss="modal"
+          onClick={() => {
+            contactState(true);
+          }}
+        >
+          Close
+        </button>
+        <button type="button" className="btn btn-primary" onClick={onSubmit}>
+          Save changes
+        </button>
+      </div>
     </form>
   );
+};
+
+ContactForm.propTypes = {
+  existingContact: PropTypes.object.isRequired,
+  updateCallback: PropTypes.func.isRequired,
+  contactState: PropTypes.func.isRequired,
 };
 
 export default ContactForm;

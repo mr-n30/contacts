@@ -56,6 +56,7 @@ def update_contact(user_id) -> jsonify:
 
     return jsonify({"message": "User updated"}), 200
 
+# Delete a contact
 @app.route("/delete_contact/<int:user_id>", methods=["DELETE"])
 def delete_contact(user_id):
     contact = Contact.query.get(user_id)
@@ -68,6 +69,7 @@ def delete_contact(user_id):
 
     return jsonify({"message": "User deleted"}), 200
 
+# Entry
 if __name__ == "__main__":
     # Init the DB
     with app.app_context():

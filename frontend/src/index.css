@@ -1,6 +1,7 @@
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
 html, body {
@@ -8,3 +9,95 @@ html, body {
   height: 100%;
 }
 
+html, body, .contact-form, .modal-content {
+  background-color: rgb(33, 37, 41);
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+/* CONTACT LIST CSS STYLES */
+.contacts-list-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: auto;
+  row-gap: 1rem;
+}
+
+.contacts-list-h2-title {
+  text-align: center;
+  grid-column: 1 / span 5;
+}
+
+.contacts-list-p-title {
+  display: flex;
+  justify-content: space-evenly;
+  grid-column: 1 / span 5;
+}
+
+.contacts-list-row-data {
+  grid-column: 1 / span 5;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.contacts-list-row-data-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.contacts-list-row-data-details {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+.contacts-list-row-data-details>span {
+  width: 300px;
+  max-width: 300px;
+  overflow: scroll;
+}
+
+.create-new-contact-button {
+  float: right;
+  margin-right: .7rem;
+  margin-top: 1rem;
+}
+
+.contact-detail {
+  border: 3px solid rgb(73, 80, 87);
+  background-color: rgb(33, 37, 41);
+  border-radius: 7px;
+  padding: .1rem;
+}
+
+/* CONTACT FORM CSS STYLE */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: white;
+}
+
+label {
+  display: flex;
+  justify-content: space-between;
+}
+
+label>p {
+  text-align: right;
+  width: 50%;
+  margin-right: 1rem;
+}
+
+label>input {
+  width: 100%;
+  border: 3px solid black;
+  border-radius: 7px;
+}
